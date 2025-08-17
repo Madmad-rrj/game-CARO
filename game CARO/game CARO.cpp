@@ -75,10 +75,29 @@ void displayABOUT()
     y++; gotoXY(x, y); cout << "This is a simple console game" << endl;
     y++; gotoXY(x, y); cout << "created for learning purposes." << endl;
     y++; gotoXY(x, y); cout << "==============================" << endl;
-    while (true) {
-        char key = _getch();
-        if (key == 'q' || key == 'Q') {
-            return;
+    while (true)
+    {
+        for (int i = 0; i < 16; i++)
+        {
+            SetColor(i, 0);
+            escape_button(2, 1);
+        }
+        
+
+        SetColor(4, 0);
+        escape_button(2, 1);
+
+        SetColor(15, 0);
+        escape_button(2, 1);
+        // Nếu có phím được nhấn
+        if (_kbhit())
+        {
+            char key = _getch();
+            if (key == 'q' || key == 27)
+            {
+                Menu();
+            }
+            // nếu không phải d, l, q thì không làm gì => vòng lặp tiếp tục
         }
     }
 }
@@ -723,8 +742,7 @@ void startGame()
 {
 ;
     int flag;
-    system("cls");
-    DrawBoard(BOARD_SIZE);
+
 
     HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hStdOut, (0 << 4) | 7);
@@ -733,6 +751,13 @@ void startGame()
     cout << BEGIN << endl;
     CurPa.x = -1;
     CurPa.y = -1;
+    if(BEGIN == 1)
+        display_Enter_Name_Room();
+    system("cls");
+    DrawBoard(BOARD_SIZE);
+
+
+
     if (BEGIN == 2)
     {
 
@@ -751,8 +776,11 @@ void startGame()
             recoverBoard();
         }
         else
-        {
+        { 
             resetData();
+            display_Enter_Name_Room();
+            system("cls");
+            DrawBoard(BOARD_SIZE);
             recoverBoard();
         }
         SetColor(6, 0);
@@ -760,6 +788,7 @@ void startGame()
     }
     else if (BEGIN == 1) // bắt đầu chơi
     {
+
         Parent.x = -1;
         Parent.y = -1;
         BEGIN = 2;
@@ -840,7 +869,8 @@ void startGame()
         }
         gotoXY(_X, _Y);
 
-        if (_kbhit()) {
+        if (_kbhit()) 
+        {
             char key = _getch();
             int col = (_X - Mother_Point_x) / 4;
             int row = (_Y - Mother_Point_y) / 2;
@@ -895,8 +925,8 @@ void startGame()
             else if (key == 'a') moveLeft();
             else if (key == 'd') moveRight();
             else if (key == 'p') {
-                Character_2(1, 1);
-                Character_1(95, 1);
+               // DrawSquirtle(75, 1);
+                //Character_1(95, 1);
                 gotoXY(_X, _Y);
             }
             else if (key == 'l' || key == 'L') {
@@ -916,11 +946,10 @@ void startGame()
 
 
 
-
+int choice = 0;
 
 void Menu()
 {
-    int choice = 0;
     char key;
     while (true)
     {
