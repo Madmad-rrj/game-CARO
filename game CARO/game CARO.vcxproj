@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="enter_name.cpp" />
     <ClCompile Include="game CARO.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="save.cpp" />

@@ -71,8 +71,10 @@ void print_Step(int x, int y, string target);
 void print_X_Dark(int x, int y);
 void print_X_Bright(int x, int y);
 void print_O_Bright(int x, int y);
+void DrawSquirtle(int a, int b);
 
 void print_O_Dark(int x, int y);
+void escape_button(int x, int y);
 void square_cell_parent(int x, int y);
 void VFX_move();
 void box1();
@@ -80,8 +82,10 @@ void SetColor(int mauchu, int mauBg);
 void donothing();
 void enter_fileName_box();
 void print_Target_color_order(int x, int y, string target, int color);
+void Enter_Name_Box();
 
 void Character_1(int x, int y);
 void Character_2(int x, int y);
 
+void display_Enter_Name_Room();
 

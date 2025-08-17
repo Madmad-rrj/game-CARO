@@ -218,17 +218,29 @@ void LoadGame()
     bool ifDel;
     while (true)
     {
-        SetColor(14, 0);
+     /*   SetColor(14, 0);
         delete_button(48, y + numberOfFile + 4);
         load_button(48, y + numberOfFile + 7);
-
+        escape_button(2, 1);
         SetColor(4, 0);
         delete_button(48, y + numberOfFile + 4);
         load_button(48, y + numberOfFile + 7);
-
+        escape_button(2, 1);
         SetColor(15, 0);
         delete_button(48, y + numberOfFile + 4);
         load_button(48, y + numberOfFile + 7);
+        escape_button(2, 1);*/
+
+        for (int i = 0; i < 16; i++)
+        {
+            load_button(48, y + numberOfFile + 7);
+
+            SetColor(i, 0);
+            delete_button(48, y + numberOfFile + 4);
+
+            escape_button(2, 1);
+        }
+
 
         // Nếu có phím được nhấn
         if (_kbhit())
@@ -246,7 +258,7 @@ void LoadGame()
                 savedGames.clear();
                 break;
             }
-            else if (key == 'q')
+            else if (key == 'q' || key == 27)
             {
                 savedGames.clear();
                 Menu();
