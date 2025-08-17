@@ -6,9 +6,9 @@
 using namespace std;
 extern GameRound Sacred;
 
-void saveGame(GameRound Sacred);
-void saveToBoard(GameRound Sacred, string fileName);
-void readBoard(string fileName, GameRound& Sacred);
+void saveGame();
+void saveToBoard(const string& fileName);
+void readBoard(string fileName);
 void readSaveFolder(vector<string>& savedGames);
 void displayLoadGame(int choice, bool isDel);
 void LoadGame();

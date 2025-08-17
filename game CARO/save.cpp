@@ -9,7 +9,7 @@ extern int _Y;
 extern int BEGIN;
 vector<string>savedGames;
 
-void saveGame(GameRound Sacred)
+void saveGame()
 {
     enter_fileName_box();
     string name;
@@ -23,9 +23,9 @@ void saveGame(GameRound Sacred)
         }
     } while (name.size() > 8);
     name = name + ".txt";
-    saveToBoard(Sacred, name);
+    saveToBoard(name);
 }
-void saveToBoard(GameRound Sacred, string fileName)
+void saveToBoard(const string& fileName)
 {
     string filepath = "Save/" + fileName;  // Lưu vào thư mục Saves
     ofstream file(filepath);
@@ -58,7 +58,7 @@ void saveToBoard(GameRound Sacred, string fileName)
     cout << "Da tao file: " << fileName << endl;
 
 }
-void readBoard(string fileName, GameRound& Sacred)
+void readBoard(string fileName)
 {
     ifstream fin("Save/" + fileName);
     if (!fin) {
@@ -177,16 +177,16 @@ void LoadGame_2(bool ifDel)
             {
                 gotoXY(1, 1);
                 cout << savedGames[choice];
-                readBoard(savedGames[choice], Sacred);
+                readBoard(savedGames[choice]);
                 BEGIN = 4;
-                startGame(Sacred);
+                startGame();
             }
         }
 
         else if (key == 'q')
         {
             savedGames.clear();
-            Menu(Sacred);
+            Menu();
         }
         else if (key == 'd')
         {
@@ -249,7 +249,7 @@ void LoadGame()
             else if (key == 'q')
             {
                 savedGames.clear();
-                Menu(Sacred);
+                Menu();
             }
             // nếu không phải d, l, q thì không làm gì => vòng lặp tiếp tục
         }

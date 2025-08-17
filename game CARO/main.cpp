@@ -8,6 +8,6 @@ int main()
 
     gotoXY(10, 5);
 
-    Menu(Sacred);
+    Menu();
     return 0;
 }
