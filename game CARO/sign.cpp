@@ -47,6 +47,75 @@ void square_cell(int x, int y)
     gotoXY(x - 2, y + 1);  cout << u8R"(╚═══╝)";
 }
 
+void square_cell_parent(int x, int y)
+{
+
+    SetColor(15, 0);
+    if (x == Mother_Point_x)
+    {
+        if (y == Mother_Point_y)
+        {
+            gotoXY(x - 2, y - 1);  cout << u8R"(╔═══╦)";
+            gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+            gotoXY(x - 2, y + 1);  cout << u8R"(╠═══╬)";
+        }
+        else if (y == Mother_Point_y + 18)
+        {
+            
+            gotoXY(x - 2, y - 1);  cout << u8R"(╠═══╬)";
+            gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+            gotoXY(x - 2, y + 1);  cout << u8R"(╚═══╩)";
+        }
+        else
+        {
+            gotoXY(x - 2, y - 1);  cout << u8R"(╠═══╬)";
+            gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+            gotoXY(x - 2, y + 1);  cout << u8R"(╠═══╬)";
+        }
+    }
+    else if (x == Mother_Point_x + 36)
+    {
+        if (y == Mother_Point_y)
+        {
+            gotoXY(x - 2, y - 1);  cout << u8R"(╦═══╗)";
+            gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+            gotoXY(x - 2, y + 1);  cout << u8R"(╬═══╣)";
+        }
+        else if (y == Mother_Point_y + 18)
+        {
+
+            gotoXY(x - 2, y - 1);  cout << u8R"(╬═══╣)";
+            gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+            gotoXY(x - 2, y + 1);  cout << u8R"(╩═══╝)";
+        }
+        else
+        {
+            gotoXY(x - 2, y - 1);  cout << u8R"(╬═══╣)";
+            gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+            gotoXY(x - 2, y + 1);  cout << u8R"(╬═══╣)";
+        }
+    }
+    else if (y == Mother_Point_y)
+    {
+        gotoXY(x - 2, y - 1);  cout << u8R"(╔═══╗)";
+        gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+        gotoXY(x - 2, y + 1);  cout << u8R"(╬═══╬)";
+
+    }
+    else if (y == Mother_Point_y + 18)
+    {
+        gotoXY(x - 2, y - 1);  cout << u8R"(╬═══╬)";
+        gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+        gotoXY(x - 2, y + 1);  cout << u8R"(╚═══╝)";
+
+    }
+    else
+    {
+        gotoXY(x - 2, y - 1);  cout << u8R"(╬═══╬)";
+        gotoXY(x - 2, y);      cout << u8R"(║   ║)";
+        gotoXY(x - 2, y + 1);  cout << u8R"(╬═══╬)";
+    }
+}
 
 void Character_1(int x, int y) {
     int mang2[28][24] = {
@@ -179,6 +248,15 @@ void print_Step(int x, int y, string target)
 {
     SetColor(15, 0);
     gotoXY(x, y);  cout << target;
+}
+void print_Target_color_order(int x, int y, string target, int color)
+{
+    SetColor(color, 0);
+    gotoXY(x, y);  
+    if (target == "X")
+        cout << u8"X";
+    else
+        cout << u8"O";
 }
 void print_X_Bright(int x, int y)
 {

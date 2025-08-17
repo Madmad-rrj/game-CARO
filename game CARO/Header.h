@@ -45,20 +45,20 @@ extern GameRound Sacred;
 void gotoXY(int x, int y);
 void displayMENU(int choice);
 void displayABOUT();
-void DrawBoard(int pSize, GameRound Sacred);
+void DrawBoard(int pSize);
 void moveUp();
 void moveLeft();
 void moveRight();
 void printBoard(const vector<vector<int>>& board);
-void recoverBoard(GameRound& Sacred);
-void startGame(GameRound& Sacred);
-void Menu(GameRound& Sacred);
-void resetData(GameRound& Sacred);
-void resetBoard(GameRound& Sacred);
+void recoverBoard();
+void startGame();
+void Menu();
+void resetData();
+void resetBoard();
 int checkBoard(const vector<vector<int>>& board, vector<Point>& winningStreak);
 void visualFX(int loop_time, std::function<void()> func);
 
-void runGameCheck(GameRound Sacred);
+void runGameCheck();
 void box0();
 void DrawBoard(int pSize);
 void drawLine(vector<Point> winningStreak, bool turn);
@@ -73,13 +73,15 @@ void print_X_Bright(int x, int y);
 void print_O_Bright(int x, int y);
 
 void print_O_Dark(int x, int y);
-
-
+void square_cell_parent(int x, int y);
+void VFX_move();
 void box1();
 void SetColor(int mauchu, int mauBg);
 void donothing();
 void enter_fileName_box();
+void print_Target_color_order(int x, int y, string target, int color);
 
 void Character_1(int x, int y);
 void Character_2(int x, int y);
+
 
