@@ -3,7 +3,7 @@
 #include "Header.h"
 #include <Windows.h>
 using namespace std;
-
+extern GameRound Sacred;
 void SetColor(int mauchu, int mauBg) {
 	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(hStdOut, (mauBg << 4) | mauchu);
@@ -253,10 +253,11 @@ void print_Target_color_order(int x, int y, string target, int color)
 {
     SetColor(color, 0);
     gotoXY(x, y);  
-    if (target == "X")
-        cout << u8"X";
-    else
-        cout << u8"O";
+    //if (target == "X")
+    //    cout << u8"X";
+    //else
+    //    cout << u8"O";
+    cout << target;
 }
 void print_X_Bright(int x, int y)
 {
@@ -414,6 +415,7 @@ void Enter_Name_Box()
     gotoXY(15, 9);  cout << u8R"(║ NHẬP TÊN PLAYER 1:                               ║)";
     gotoXY(15, 10); cout << u8R"(╚══════════════════════════════════════════════════╝)";
     gotoXY(20, 11); cout << u8"---Vui long nhap ten duoi 8 ky tu---";
+    if (!Sacred.isPVP) return;
     gotoXY(15, 15); cout << u8R"(╔══════════════════════════════════════════════════╗)";
     gotoXY(15, 16); cout << u8R"(║ NHẬP TÊN PLAYER 2:                               ║)";
     gotoXY(15, 17); cout << u8R"(╚══════════════════════════════════════════════════╝)";
@@ -503,3 +505,21 @@ void DrawSquirtle(int a, int b) {
 
     SetColor(7, 15);
 }
+extern bool DebugMode;
+extern int _X, _Y;
+void drawCordinate()
+{
+    if (!DebugMode) return;
+    SetColor(15, 0);
+    for (int i = 0; i < BOARD_SIZE; i++)
+    {
+        gotoXY(Mother_Point_x + i * 4, Mother_Point_y - 2); cout << i;
+        gotoXY(Mother_Point_x - 4, Mother_Point_y + i * 2); cout << i;
+    }
+   /* int col = (_X - Mother_Point_x) / 4;
+    int row = (_Y - Mother_Point_y) / 2;
+    SetColor(6, 0);
+    gotoXY(Mother_Point_x + col * 4, Mother_Point_y - 2); cout << col;
+    gotoXY(Mother_Point_x - 4, Mother_Point_y + row * 2); cout << row;*/
+}
+    

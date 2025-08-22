@@ -9,7 +9,7 @@
 #include <conio.h>
 #include <iomanip>
 #include "Save.h"
-
+#include "Bot.h"
 using namespace std;
 
 //Sacred.Name1 = "P1";
@@ -18,7 +18,8 @@ int _X, _Y;
 int BEGIN = 1;
 Point CurPa;
 Point Parent;
-
+bool flag = true;
+bool DebugMode = true;
 void gotoXY(int x, int y)
 {
     
@@ -33,11 +34,11 @@ void clearscreen()
 }
 void displayMENU(int choice)
 {
-    system("cls");
     gotoXY(10, 5);
 
-    string menu[6] = {
-       "START GAME",
+    string menu[7] = {
+       "START GAME PVP",
+       "START GAME PVE",
        "INSTRUCTION",
        "ABOUT",
        "LOAD GAME",
@@ -151,6 +152,8 @@ void DrawBoard(int pSize)
         }
     }
     gotoXY(62, 1); cout << Sacred.curRound;
+    string temp = (Sacred.isPVP) ? "PVP" : "PVE";
+    gotoXY(52, 1); cout << temp;
     gotoXY(39, 3); cout << Sacred.Name1;
     gotoXY(70, 3); cout << Sacred.Name2;
     gotoXY(35, 4); cout << Sacred.P1;
@@ -167,7 +170,7 @@ void DrawBoard(int pSize)
      gotoXY(0, 0); cout << u8"╔";
 
      gotoXY(0, 1); cout << u8"║";*/
-
+    drawCordinate();
 }
 
 
@@ -255,6 +258,8 @@ void resetData()
     resetBoard(Sacred);
     Sacred.isXTurn = true;
     Sacred.P1 = Sacred.P2 = 0;
+    Sacred.CurPoint = { _X,_Y };
+    Sacred.chess_on_board = 0;
     Sacred.curRound = 1;
     Parent.x = -1;
     Parent.y = -1;;
@@ -264,8 +269,10 @@ void updateRoundGame(int Winner)
     Sacred.curRound++;
     (Winner == 1) ? Sacred.P1++: Sacred.P2++;
     Sacred.isXTurn = true;
+    Sacred.chess_on_board = 0;
     _X = Mother_Point_x;
     _Y = Mother_Point_y;
+    Sacred.CurPoint = { _X,_Y };
     resetBoard(Sacred);
     //Sleep(4000);
     BEGIN = 3;
@@ -304,7 +311,14 @@ void recoverBoard()
         print_X_Bright(11, 11);
     else
         print_X_Dark(11, 11);
-}
+    SetColor(6, 0);
+    square_cell(Sacred.CurPoint.x, Sacred.CurPoint.y);
+    if (Sacred.chess_on_board == 0) return;
+    int col = (Sacred.CurPoint.x - Mother_Point_x) / 4;
+    int row = (Sacred.CurPoint.y - Mother_Point_y) / 2;
+    if (Sacred.board[row][col] == 2) print_Target_color_order(Sacred.CurPoint.x, Sacred.CurPoint.y, "O", 15);
+    else if (Sacred.board[row][col] == 1) print_Target_color_order(Sacred.CurPoint.x, Sacred.CurPoint.y, "X", 15);
+    }
 //void box1();
 //void checkBoardHelper(vector<vector<int>>board, vector<int>& checkline, int x, int y)
 //{
@@ -338,7 +352,8 @@ int countInDirection(const vector<vector<int>>& board, int x, int y, int dx, int
 
     return count;
 }
-vector<Point> collectInDirection(const vector<vector<int>>& board, int x, int y, int dx, int dy) {
+vector<Point> collectInDirection(const vector<vector<int>>& board, int x, int y, int dx, int dy) 
+{
     int n = board.size();
     int player = board[x][y];
     vector<Point> result;
@@ -714,14 +729,22 @@ void VFX_move()
         if (row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE) {
             if (Sacred.board[row][col] == 1) {
                 print_Target_color_order(CurPa.x, CurPa.y, "X", 4);
+
                // gotoXY(CurPa.x, CurPa.y); cout<<"R";
             }
             else if (Sacred.board[row][col] == 2) {
                 print_Target_color_order(CurPa.x, CurPa.y, "O", 11);
             }
             else {
-
+                
             }
+            if (DebugMode)
+            {
+                SetColor(15, 0);
+                gotoXY(CurPa.x, Mother_Point_y - 2); cout << col;
+                gotoXY(Mother_Point_x - 4, CurPa.y); cout << row;
+            }
+            
         }
     }
 
@@ -736,21 +759,34 @@ void VFX_move()
     else if (Sacred.board[row][col] == 2) {
         print_Target_color_order(_X, _Y, "O", 11); // O xanh sáng
     }
+    if (DebugMode)
+    {
+        SetColor(0, 4);
+        gotoXY(_X, Mother_Point_y - 2); cout << col;
+        gotoXY(Mother_Point_x - 4, _Y); cout << row;
+        SetColor(15, 0);
+        gotoXY(30, 25); cout << "(" << col << ", " << row << ")";
+
+    }
+    
 }
 
 void startGame()
 {
-;
-    int flag;
-
 
     HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hStdOut, (0 << 4) | 7);
     //gotoXY(_X, _Y);
-    gotoXY(1, 1);
-    cout << BEGIN << endl;
+    //gotoXY(1, 1);
+    /*if(DebugMode)
+    cout <<"BEGIN: "<< BEGIN << endl;*/
     CurPa.x = -1;
     CurPa.y = -1;
+    if (flag != Sacred.isPVP) {
+        resetData();
+        BEGIN = 1;
+        flag = !flag;
+    }
     if(BEGIN == 1)
         display_Enter_Name_Room();
     system("cls");
@@ -761,7 +797,6 @@ void startGame()
     if (BEGIN == 2)
     {
 
-        flag = 0;
         box1();
         char k = _getch();
         clearscreen();
@@ -783,8 +818,14 @@ void startGame()
             DrawBoard(BOARD_SIZE);
             recoverBoard();
         }
-        SetColor(6, 0);
-        square_cell(Sacred.CurPoint.x, Sacred.CurPoint.y);
+        if (DebugMode)
+        {
+            SetColor(0, 4);
+            gotoXY(Sacred.CurPoint.x, Mother_Point_y - 2); cout << 0;
+            gotoXY(Sacred.CurPoint.y - 4, _Y); cout << 0;
+        }
+        
+   
     }
     else if (BEGIN == 1) // bắt đầu chơi
     {
@@ -798,10 +839,16 @@ void startGame()
         print_O_Dark(91, 11);
         SetColor(6, 0);
         square_cell(Sacred.CurPoint.x, Sacred.CurPoint.y);
+        SetColor(6, 15);
+        if (DebugMode)
+        {
+            SetColor(0, 4);
+            gotoXY(_X, Mother_Point_y - 2); cout << 0;
+            gotoXY(Mother_Point_x - 4, _Y); cout << 0;
+        } 
     }
     else if (BEGIN == 3) // next round
     {
-         flag = 0;
          BEGIN = 2;
          Parent.x = -1;
          Parent.y = -1;
@@ -813,44 +860,40 @@ void startGame()
          square_cell(_X, _Y);
          CurPa.x = Sacred.CurPoint.x;
          CurPa.y = Sacred.CurPoint.y;
-         gotoXY(1, 1);
-         printBoard(Sacred.board);
+         //gotoXY(1, 1);
+         if (DebugMode)
+         {
+            // printBoard(Sacred.board);
+             SetColor(0, 4);
+             gotoXY(_X, Mother_Point_y - 2); cout << 0;
+             gotoXY(Mother_Point_x - 4, _Y); cout << 0;
+         }
     }
     else if (BEGIN == 4) // load game
     {
-        flag = 0;
         
         BEGIN = 2;
         recoverBoard();
-        SetColor(6, 0);
-        square_cell(Sacred.CurPoint.x, Sacred.CurPoint.y);
-        if (Sacred.isNewBoard == false)
-        {
-            _X = Sacred.CurPoint.x;
-            _Y = Sacred.CurPoint.y;
-            gotoXY(_X, _Y);
-            SetColor(15, 0);
-            if (Sacred.isXTurn)  cout << "O";
-            else cout << "X";
-            Parent.x = Sacred.CurPoint.x;
-            Parent.y = Sacred.CurPoint.y;
-        }
-        else
-        {
-            Parent.x = -1;
-            Parent.y = -1;
-        }
-        CurPa.x = Sacred.CurPoint.x;
-        CurPa.y = Sacred.CurPoint.y;
-    }
-    gotoXY(1, 1);
+    
 
-    cout << BEGIN << endl;
-   /* _X = Mother_Point_x, _Y = Mother_Point_y;
-    gotoXY(_X, _Y);*/
-    
-    
+        Parent.x = -1;
+        Parent.y = -1;
+        _X = Sacred.CurPoint.x;
+        _Y = Sacred.CurPoint.y;
+        gotoXY(_X, _Y);
+        int temp = Sacred.board[(Sacred.CurPoint.y - Mother_Point_y) / 2][(Sacred.CurPoint.x - Mother_Point_x) / 4];
+        gotoXY(Sacred.CurPoint.x, Sacred.CurPoint.y);
+        if (temp == 1)
+            print_Target_color_order(Sacred.CurPoint.x, Sacred.CurPoint.y, "X", 15);
+        else if (temp == 2)
+            print_Target_color_order(Sacred.CurPoint.x, Sacred.CurPoint.y, "O", 15);
+        
+
+    }
+
     while (true) {
+        gotoXY(1, 1);
+        if (DebugMode) printBoard(Sacred.board);
         print_O_Dark(91, 11);
         print_X_Dark(11, 11);
         if (Sacred.isXTurn)
@@ -867,6 +910,8 @@ void startGame()
             print_O_Bright(91, 11);
 
         }
+        //startGamePVE();
+        if(!Sacred.isPVP) startGamePVE_2();
         gotoXY(_X, _Y);
 
         if (_kbhit()) 
@@ -876,12 +921,15 @@ void startGame()
             int row = (_Y - Mother_Point_y) / 2;
             if (key == 'q' || key == 'Q') {
                 // return;
+                flag = Sacred.isPVP;
                 BEGIN = 2;
                 Menu();
 
             }
             else if (key == 13 && Sacred.board[row][col] == 0) {
-
+                gotoXY(0, 25);
+                cout << (Parent.x - Mother_Point_x) / 4 << " " << (Parent.y - Mother_Point_y) / 2;
+               // Sacred.isNewBoard = false; ////////////////////////////
                 if (Parent.x == -1 && Parent.y == -1)
                 {
                     print_Step(_X, _Y, "X");
@@ -889,33 +937,44 @@ void startGame()
                     Parent.x = _X;
                     Parent.y = _Y;
                     Sacred.isXTurn = false;
-                    flag = 1;
                 }
                 else
                 {
-
+                    int temp = Sacred.board[(Parent.y - Mother_Point_y) / 2][(Parent.x - Mother_Point_x) / 4];
+                    gotoXY(Parent.x, Parent.y);
+                    if (temp == 1)
+                        print_Target_color_order(Parent.x, Parent.y, "X", 4);
+                    else if (temp == 2)
+                        print_Target_color_order(Parent.x, Parent.y, "O", 11);
                     if (!Sacred.isXTurn)
                     {
-                        gotoXY(Parent.x, Parent.y);
+                        /*gotoXY(Parent.x, Parent.y);
                         SetColor(4, 0);
-                        printf("X");
+                        printf("X");*/
                         Sacred.board[row][col] = 2;
                         print_Step(_X, _Y, "O");
                         Sacred.isXTurn = true;
                     }
                     else
                     {
-                        gotoXY(Parent.x, Parent.y);
+                        /*gotoXY(Parent.x, Parent.y);
                         SetColor(11, 0);
-                        printf("O");
+                        printf("O");*/
                         Sacred.board[row][col] = 1;
                         print_Step(_X, _Y, "X");
+                        for (int i = 0; i < 9; i++)
+                        {
+                            gotoXY(93, i); cout << "                           ";
+
+                        }
                         Sacred.isXTurn = false;
+
                     }
                     Parent.x = _X;
                     Parent.y = _Y;
                 }
-
+                Sacred.CurPoint = { _X,_Y };
+                Sacred.chess_on_board++;
                 runGameCheck();
                 gotoXY(_X, _Y);
                 fflush(stdout);
@@ -950,9 +1009,12 @@ int choice = 0;
 
 void Menu()
 {
+    system("cls");
     char key;
     while (true)
     {
+        system("cls");
+        SetColor(15, 0);
         displayMENU(choice);
         key = _getch();
         if (key == 'w' || key == 'W')
@@ -964,18 +1026,23 @@ void Menu()
             system("cls");
             switch (choice)
             {
-            case 0:  startGame(); break;
-            case 1: cout << "Instructions...\n"; break;
-            case 2: displayABOUT(); break;
-            case 3: LoadGame();
+            case 0:  Sacred.isPVP = true; startGame(); break;
+            case 1:  Sacred.isPVP = false;  startGame(); break;
+            case 2: cout << "Instructions...\n"; break;
+            case 3: displayABOUT(); break;
+            case 4: LoadGame();
                 /*for (string a : savedGames)
                     cout << a << endl;*/
                 break;
-            case 4: cout << "Settings...\n"; break;
-            case 5:
+            case 5: SETTING(); break;
+            case 6:
                 cout << "Cam on da choi! Tam biet!\n"; break;
             }
-            // system("pause");
+             system("pause");
         }
     }
+}
+void SETTING()
+{
+    DebugMode = !DebugMode;
 }

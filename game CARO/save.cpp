@@ -22,16 +22,20 @@ void saveGame()
             gotoXY(51, 16); cout << "                                          ";
         }
     } while (name.size() > 8);
-    name = name + ".txt";
     saveToBoard(name);
 }
-void saveToBoard(const string& fileName)
+void saveToBoard( string fileName)
 {
+    string tail = Sacred.isPVP ? "_1" : "_2";
+    fileName = fileName + tail + ".txt";
     string filepath = "Save/" + fileName;  // Lưu vào thư mục Saves
     ofstream file(filepath);
     if (!file) cout << "KHONG THE MO FILE";
     // 1. Lượt đi
     file << Sacred.isXTurn << "\n";
+
+    // 2. IsPVP?
+    file << Sacred.isPVP << "\n";
 
     // 2. Điểm số
     file << Sacred.P1 << "\n" << Sacred.P2 << "\n";
@@ -69,6 +73,8 @@ void readBoard(string fileName)
     // Đọc lượt đi
     fin >> Sacred.isXTurn;
 
+    fin >> Sacred.isPVP;
+
     // Đọc điểm số
     fin >> Sacred.P1 >> Sacred.P2;
 
@@ -96,7 +102,7 @@ void readBoard(string fileName)
     fin.close();
 }
 
-void readSaveFolder(vector<string>& savedGames)
+void readSaveFolder(vector<string>& savedGames, vector<bool>& gamesMode)
 {
     // Chạy lệnh dir và ghi đầu ra vào file temp.txt
     system("dir Save > temp.txt");
@@ -115,12 +121,23 @@ void readSaveFolder(vector<string>& savedGames)
     }
 
     file.close();
+    gamesMode.resize(savedGames.size());
+    for (int i = 0; i < savedGames.size(); i++)
+    {
+        string filename = savedGames[i];
+        char modeChar = filename[filename.size() - 5]; // lấy ký tự ngay trước ".txt"
+        int mode = modeChar - '0';
+        // true = PVP (1), false = PVE (2)
+        gamesMode[i] = (mode == 1);
+    }
+
     remove("temp.txt");  // Xóa file tạm sau khi sử dụng
 }
 void displayLoadGame(int choice, bool isDel)
 {
     int x = 49, y = 1;
-    readSaveFolder(savedGames);
+    vector<bool> gamesMode;
+    readSaveFolder(savedGames, gamesMode);
     system("cls");
     int numberOfFile = savedGames.size();
     frameListGame(numberOfFile);
@@ -132,7 +149,9 @@ void displayLoadGame(int choice, bool isDel)
         {
             gotoXY(x + 4, y + 2 + i); cout << ">";
         }
-        gotoXY(x + 6, y + 2 + i); cout << savedGames[i];
+        gotoXY(x + 6, y + 2 + i); cout << savedGames[i].substr(0, savedGames[i].size() - 6);;
+        string temp = (gamesMode[i]) ? "PVP" : "PVE";
+        gotoXY(x + 15, y + 2 + i); cout << temp;
     }
     SetColor(15, 0);
     delete_button(48, y + numberOfFile + 4);
@@ -142,6 +161,7 @@ void displayLoadGame(int choice, bool isDel)
     SetColor(15, 0);
     //char key = _getch();
 }
+extern bool flag;
 void LoadGame_2(bool ifDel)
 {
     int choice = 0;
@@ -179,6 +199,7 @@ void LoadGame_2(bool ifDel)
                 cout << savedGames[choice];
                 readBoard(savedGames[choice]);
                 BEGIN = 4;
+                flag = Sacred.isPVP;
                 startGame();
             }
         }
@@ -205,7 +226,8 @@ void LoadGame()
     int x = 49, y = 1;
     int choice = 0;
     char key;
-    readSaveFolder(savedGames);
+    vector<bool>gamesMode;
+    readSaveFolder(savedGames, gamesMode);
     int numberOfFile = savedGames.size();
     SetColor(15, 0);
     SetConsoleOutputCP(CP_UTF8);
@@ -213,7 +235,9 @@ void LoadGame()
     gotoXY(x, y); cout << "---SAVED GAMES LIST---";
     for (int i = 0; i < numberOfFile; i++)
     {
-        gotoXY(x + 6, y + 2 + i); cout << savedGames[i];
+        gotoXY(x + 6, y + 2 + i); cout << savedGames[i].substr(0, savedGames[i].size() - 6);
+        string temp = (gamesMode[i]) ? "PVP" : "PVE";
+        gotoXY(x + 15, y + 2 + i); cout << temp;
     }
     bool ifDel;
     while (true)
