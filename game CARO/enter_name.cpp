@@ -1,7 +1,8 @@
 ﻿#include "Header.h"
 #include "Save.h"
 using namespace std;
-
+extern bool isPVP;
+extern GameRound Sacred;
 void display_Enter_Name_Room()
 {
     Point pointer;
@@ -26,21 +27,33 @@ void display_Enter_Name_Room()
         if (_kbhit())
         {
             int ch = _getch();  // đọc 1 phím
-            if (ch == 27) {     // ESC
+            if (ch == 27) 
+            {     // ESC
                 Menu();        // thoát luôn
             }
-            else if (ch == 13) {  // ENTER
+            else if (ch == 13) 
+            {  // ENTER
                 // if (name.size() <= 8) break;
-                if (time == 1)
-                    Sacred.Name1 = name;
+                if (Sacred.isPVP)
+                {
+                    if (time == 1)
+                        Sacred.Name1 = name;
+                    else
+                        Sacred.Name2 = name;
+                    name = "";
+                    time++;
+                    chP.x = 37;
+                    chP.y = 16;
+                }
                 else
-                    Sacred.Name2 = name;
-                name = "";
-                time++;
-                chP.x = 37;
-                chP.y = 16;
+                {
+                    if (time == 1)
+                        Sacred.Name1 = name;
+                    time+=4;
+                }
             }
-            else if (ch == 8) {   // BACKSPACE
+            else if (ch == 8) 
+            {   // BACKSPACE
                 if (!name.empty()) {
                     name.pop_back();
                     cout << "\b \b";
@@ -65,6 +78,7 @@ void display_Enter_Name_Room()
     }
     if (Sacred.Name1 == "") Sacred.Name1 = "P1";
     if (Sacred.Name2 == "") Sacred.Name2 = "P2";
+    Sacred.Name2 = (Sacred.isPVP) ? "P2" : "BOT";
 }
     //    if (_kbhit())
     //    {

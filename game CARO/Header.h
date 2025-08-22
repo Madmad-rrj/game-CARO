@@ -24,6 +24,8 @@ struct GameRound
     Point CurPoint;
     int FLAG;
     bool isNewBoard;
+    int chess_on_board;
+    bool isPVP;
     GameRound() 
     {
         board = vector<vector<int>>(BOARD_SIZE, vector<int>(BOARD_SIZE, 0));
@@ -36,11 +38,14 @@ struct GameRound
         CurPoint.y = Mother_Point_y;
         FLAG = 0;
         isNewBoard = true;
+        chess_on_board = 0;
+        isPVP = true;
     }
 };
 extern GameRound Sacred;
 
 #include "Save.h"
+void SETTING();
 
 void gotoXY(int x, int y);
 void displayMENU(int choice);
@@ -57,6 +62,7 @@ void resetData();
 void resetBoard();
 int checkBoard(const vector<vector<int>>& board, vector<Point>& winningStreak);
 void visualFX(int loop_time, std::function<void()> func);
+vector<Point> collectInDirection(const vector<vector<int>>& board, int x, int y, int dx, int dy);
 
 void runGameCheck();
 void box0();
@@ -83,6 +89,7 @@ void donothing();
 void enter_fileName_box();
 void print_Target_color_order(int x, int y, string target, int color);
 void Enter_Name_Box();
+void drawCordinate();
 
 void Character_1(int x, int y);
 void Character_2(int x, int y);

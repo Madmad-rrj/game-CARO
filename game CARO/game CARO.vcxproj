@@ -127,6 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BOT.cpp" />
     <ClCompile Include="enter_name.cpp" />
     <ClCompile Include="game CARO.cpp" />
     <ClCompile Include="main.cpp" />
@@ -135,6 +136,7 @@
     <ClCompile Include="time.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Bot.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="Save.h" />
     <ClInclude Include="time.h" />
