@@ -77,8 +77,9 @@ void display_Enter_Name_Room()
         }
     }
     if (Sacred.Name1 == "") Sacred.Name1 = "P1";
-    if (Sacred.Name2 == "") Sacred.Name2 = "P2";
+    if (Sacred.Name2 == "") 
     Sacred.Name2 = (Sacred.isPVP) ? "P2" : "BOT";
+    if (!Sacred.isPVP) Sacred.Name2 = "BOT";
 }
     //    if (_kbhit())
     //    {
