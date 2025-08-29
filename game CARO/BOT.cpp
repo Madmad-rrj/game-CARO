@@ -2,7 +2,7 @@
 #include "Header.h"
 #include "Save.h"
 
-extern Point Parent;
+extern Point Last_Move_Point;
 extern bool DebugMode;
 extern int _X, _Y;
 int randomInRange(int min, int max) {
@@ -21,115 +21,145 @@ Point randomPoint()
     return { x,y };
 }
 bool collectInDirectionPVE(const vector<vector<int>>& board,
-    int x, int y, int dx, int dy, int limit,
-    vector<Point>& PossibleLine)
+    int x, int y, int dx, int dy
+)
 {
     int n = board.size();
     vector<Point> temp;
     //gotoXY(93, 25); cout << board[x][y]<< " ok "; //Sleep(1000);
-
-    // nếu ô gốc không phải quân mình (2) thì bỏ qua
-   // if (board[x][y] != 2) return false;
+    int player = board[x][y];
 
 
     gotoXY(93, 25); cout << "Diem dang xet " << x << " " << y << " " << dx << " " << dy;// Sleep(5000);
-
+    int countPLayer = 0;
     int nx = x, ny = y;
-    for (int step = 0; step < limit; step++) {
+    for (int step = 0; step < 5; step++) {
         // ngoài biên => fail
         if (nx < 0 || ny < 0 || nx >= n || ny >= n) return false;
 
-        // gặp quân đối thủ => fail
-        if (board[nx][ny] == 1) {
-            //cout << "error (" << nx << "," << ny << ")";
-            return false;
-        }
+        if (board[nx][ny] == 3 - player) return false;
 
+        if (board[nx][ny] == player) countPLayer++;
         temp.push_back({ nx, ny });
 
         nx += dx;
         ny += dy;
     }
-    //gotoXY(0, 25);
-    //cout << "temp (" << y << "," << x << ") dx=" << dx << " dy=" << dy
-    //    << " size=" << temp.size()
-    //    << " valStart=" << board[x][y] << endl; //Sleep(5000);
-    if (temp.size() == limit) {
-        PossibleLine = temp;
- 
+
+    if (temp.size() == 5 && countPLayer == 4) {
+        // PossibleLine = temp;
+
         return true;
     }
     return false;
 }
-bool attack(int needStreak) {
-    vector<candidate> candidates;
-    if (!Sacred.isXTurn)
-        checkBoardPVE(2, Sacred.board, needStreak, candidates);
+bool special_move(int streak, vector<vector<candidate>>& candidates, int mode) // mode: 1:attack, 2:defend)
+{
+    if (candidates[streak].empty()) return false;
 
-    for (auto& c : candidates) {
+    for (int i = 0; i < candidates[streak].size(); i++)
+    {
         int dx, dy;
-        getDirection(c.status, dx, dy);
+        getDirection(candidates[streak][i].status, dx, dy);
 
-        vector<Point> line;
-        if (!collectInDirectionPVE(Sacred.board, c.cord.x, c.cord.y, dx, dy, 5, line))
-            continue;
+        int x = candidates[streak][i].cord.x;
+        int y = candidates[streak][i].cord.y;
 
-        for (Point p : line) {
-            if (p.x >= 0 && p.y >= 0 && p.x < BOARD_SIZE && p.y < BOARD_SIZE
-                && Sacred.board[p.x][p.y] == 0)
-            {
-                gotoXY(Mother_Point_x + p.y * 4, Mother_Point_y + p.x * 2);
-                cout << "O";
-                Sacred.board[p.x][p.y] = 2;
-                Sacred.isXTurn = true;
-                Parent.x = Mother_Point_x + p.y * 4;
-                Parent.y = Mother_Point_y + p.x * 2;
-                Sacred.chess_on_board++;
-                runGameCheck();
-                return true; // đánh thành công
-            }
-        }
+        int nx = x, ny = y;
+        if (!(collectInDirectionPVE(Sacred.board, x, y, dx, dy))) continue;
+        nx += dx * 2;
+        ny += dy * 2;
+        // && board[x + 2 * dx][y + 2 * dy] == 0
+        if (Sacred.board[nx][ny] != 0) continue;
+
+        gotoXY(Mother_Point_x + ny * 4, Mother_Point_y + nx * 2);
+        cout << "O";
+        gotoXY(80, 25);
+        cout << "                                      ";
+        gotoXY(80, 25);
+        if (DebugMode)
+            cout << "DEBUG special move, (" << x << ", " << y << ") streak " << 2 << " mode " << mode;
+        Sacred.board[nx][ny] = 2;
+        Sacred.isXTurn = true;
+        Last_Move_Point.x = Mother_Point_x + ny * 4;
+        Last_Move_Point.y = Mother_Point_y + nx * 2;
+        Sacred.lastMove = { _X,_Y };
+        Sacred.chess_on_board++;
+        runGameCheck();
+
+        return true;
     }
-    return false; // không tìm được nước đi
+    return false;
 }
-
-bool defend(int needStreak) {
-    vector<candidate> candidates;
-
-    // lấy các line của đối thủ (1)
-    if (!Sacred.isXTurn)
-        checkBoardPVE(1, Sacred.board, needStreak, candidates);
-
-    for (auto& c : candidates) {
-        int dx, dy;
-        getDirection(c.status, dx, dy);
-
-        vector<Point> line;
-        if (!collectInDirectionPVE(Sacred.board, c.cord.x, c.cord.y, dx, dy, 5, line))
-            continue;
-
-        for (Point p : line) {
-            if (p.x >= 0 && p.y >= 0 && p.x < BOARD_SIZE && p.y < BOARD_SIZE
-                && Sacred.board[p.x][p.y] == 0)
-            {
-                // Vẽ quân O
-                gotoXY(Mother_Point_x + p.y * 4, Mother_Point_y + p.x * 2);
-                cout << "O";
-
-                // Cập nhật bàn cờ
-                Sacred.board[p.x][p.y] = 2;
-                Sacred.isXTurn = true;
-                Parent.x = Mother_Point_x + p.y * 4;
-                Parent.y = Mother_Point_y + p.x * 2;
-                Sacred.chess_on_board++;
-
-                runGameCheck();
-                return true; // chặn thành công
-            }
-        }
-    }
-    return false; // không chặn được
-}
+//bool attack(int needStreak) {
+//    vector<candidate> candidates;
+//    if (!Sacred.isXTurn)
+//        checkBoardPVE(2, Sacred.board, needStreak, candidates);
+//
+//    for (auto& c : candidates) {
+//        int dx, dy;
+//        getDirection(c.status, dx, dy);
+//
+//        vector<Point> line;
+//        if (!collectInDirectionPVE(Sacred.board, c.cord.x, c.cord.y, dx, dy, 5, line))
+//            continue;
+//
+//        for (Point p : line) {
+//            if (p.x >= 0 && p.y >= 0 && p.x < BOARD_SIZE && p.y < BOARD_SIZE
+//                && Sacred.board[p.x][p.y] == 0)
+//            {
+//                gotoXY(Mother_Point_x + p.y * 4, Mother_Point_y + p.x * 2);
+//                cout << "O";
+//                Sacred.board[p.x][p.y] = 2;
+//                Sacred.isXTurn = true;
+//                Last_Move_Point.x = Mother_Point_x + p.y * 4;
+//                Last_Move_Point.y = Mother_Point_y + p.x * 2;
+//                Sacred.chess_on_board++;
+//                runGameCheck();
+//                return true; // đánh thành công
+//            }
+//        }
+//    }
+//    return false; // không tìm được nước đi
+//}
+//
+//bool defend(int needStreak) {
+//    vector<candidate> candidates;
+//
+//    // lấy các line của đối thủ (1)
+//    if (!Sacred.isXTurn)
+//        checkBoardPVE(1, Sacred.board, needStreak, candidates);
+//
+//    for (auto& c : candidates) {
+//        int dx, dy;
+//        getDirection(c.status, dx, dy);
+//
+//        vector<Point> line;
+//        if (!collectInDirectionPVE(Sacred.board, c.cord.x, c.cord.y, dx, dy, 5, line))
+//            continue;
+//
+//        for (Point p : line) {
+//            if (p.x >= 0 && p.y >= 0 && p.x < BOARD_SIZE && p.y < BOARD_SIZE
+//                && Sacred.board[p.x][p.y] == 0)
+//            {
+//                // Vẽ quân O
+//                gotoXY(Mother_Point_x + p.y * 4, Mother_Point_y + p.x * 2);
+//                cout << "O";
+//
+//                // Cập nhật bàn cờ
+//                Sacred.board[p.x][p.y] = 2;
+//                Sacred.isXTurn = true;
+//                Last_Move_Point.x = Mother_Point_x + p.y * 4;
+//                Last_Move_Point.y = Mother_Point_y + p.x * 2;
+//                Sacred.chess_on_board++;
+//
+//                runGameCheck();
+//                return true; // chặn thành công
+//            }
+//        }
+//    }
+//    return false; // không chặn được
+//}
 
 //void botMove()
 //{
@@ -216,8 +246,10 @@ bool defending(int streak, vector<vector<candidate>>& candidates, int mode) // m
         cout << "DEBUG defending, (" << cand.cord.y << ", " << cand.cord.x << ") streak " << cand.streak << " mode " << mode;
         Sacred.board[nx][ny] = 2;
         Sacred.isXTurn = true;
-        Parent.x = Mother_Point_x + ny * 4;
-        Parent.y = Mother_Point_y + nx * 2;
+        Last_Move_Point.x = Mother_Point_x + ny * 4;
+        Last_Move_Point.y = Mother_Point_y + nx * 2;
+        
+        Sacred.lastMove = { _X,_Y };
         Sacred.chess_on_board++;
         runGameCheck();
 
@@ -285,9 +317,10 @@ bool attacking(int streak, vector<vector<candidate>>& candidates)
         cout << "DEBUG attacking, (" << candidates[streak][i].cord.y << ", " << candidates[streak][i].cord.x << ") streak " << candidates[streak][i].streak;
         Sacred.board[nx][ny] = 2;        // cập nhật bàn cờ
         Sacred.isXTurn = true;           // chuyển lượt
-        Parent.x = Mother_Point_x + ny * 4;
-        Parent.y = Mother_Point_y + nx * 2;
+        Last_Move_Point.x = Mother_Point_x + ny * 4;
+        Last_Move_Point.y = Mother_Point_y + nx * 2;
         Sacred.chess_on_board++;
+        Sacred.lastMove = { _X,_Y };
         gotoXY(87, 25);
         runGameCheck();                  // kiểm tra thắng thua
         return true;                     // đã đánh xong
@@ -300,45 +333,53 @@ bool attacking(int streak, vector<vector<candidate>>& candidates)
 
 void startGamePVE_2()
 {
+    if (Sacred.chess_on_board == 0 || Sacred.isXTurn) return;
+    int temp = Sacred.board[(Last_Move_Point.y - Mother_Point_y) / 2][(Last_Move_Point.x - Mother_Point_x) / 4];
+    gotoXY(Last_Move_Point.x, Last_Move_Point.y);
+    if (temp == 1)
+        print_Target_color_order(Last_Move_Point.x, Last_Move_Point.y, "X", 4);
+    else if (temp == 2)
+        print_Target_color_order(Last_Move_Point.x, Last_Move_Point.y, "O", 11);
+    SetColor(15, 0);
     if (Sacred.chess_on_board == 1)
     {
+
         Point first_chess = randomPoint();
         gotoXY(Mother_Point_x + first_chess.y * 4, Mother_Point_y + first_chess.x * 2);
         cout << "O";
         Sacred.isXTurn = true;
         Sacred.board[first_chess.x][first_chess.y] = 2;
-        Parent.x = Mother_Point_x + first_chess.y * 4;
-        Parent.y = Mother_Point_y + first_chess.x * 2;
+        Last_Move_Point.x = Mother_Point_x + first_chess.y * 4;
+        Last_Move_Point.y = Mother_Point_y + first_chess.x * 2;
         Sacred.chess_on_board++;
     }
     else
     {
-        //if (Sacred.isXTurn) { gotoXY(0, 26); cout << Sacred.isXTurn<< " LOI"; }
-        if (!Sacred.isXTurn)
-        {
+        
 
-            //cout << "hello" << Sacred.chess_on_board;
-
-            vector<vector<candidate>> candidates_O(5);
-            vector<vector<candidate>> candidates_X(5);
-            getCandidate(4, Sacred.board, candidates_X, 1);
-            getCandidate(3, Sacred.board, candidates_X, 1);
-            getCandidate(4, Sacred.board, candidates_O, 2);
-            getCandidate(3, Sacred.board, candidates_O, 2);
-            getCandidate(2, Sacred.board, candidates_O, 2);
-            getCandidate(1, Sacred.board, candidates_O, 2);
-            /*for (int streak = 4; streak > 0; streak++)
-                getCandidate(streak, Sacred.board, candidates_O, 2);*/
+        vector<vector<candidate>> candidates_O(5);
+        vector<vector<candidate>> candidates_X(5);
+        getCandidate(4, Sacred.board, candidates_X, 1);
+        getCandidate(3, Sacred.board, candidates_X, 1);
+        getCandidate(2, Sacred.board, candidates_X, 1);
+        getCandidate(4, Sacred.board, candidates_O, 2);
+        getCandidate(3, Sacred.board, candidates_O, 2);
+        getCandidate(2, Sacred.board, candidates_O, 2);
+        getCandidate(1, Sacred.board, candidates_O, 2);
+        /*for (int streak = 4; streak > 0; streak++)
+            getCandidate(streak, Sacred.board, candidates_O, 2);*/
             //cout << "2222222222222222";
 
-            if (attacking(4, candidates_O)) return;
-            if (defending(4, candidates_X, 2)) return;
-            if (defending(3, candidates_X, 1)) return;
-            if (attacking(3, candidates_O)) return;
-            if (attacking(2, candidates_O)) return;
-            if (attacking(1, candidates_O)) return;
-        }
-        
+        if (attacking(4, candidates_O)) return;
+        if (special_move(2, candidates_O, 1)) return;
+        if (defending(4, candidates_X, 2)) return;
+        if (special_move(2, candidates_X, 2)) return;
+        if (defending(3, candidates_X, 1)) return;
+        if (attacking(3, candidates_O)) return;
+        if (attacking(2, candidates_O)) return;
+        if (attacking(1, candidates_O)) return;
+        Last_Move_Point.x = _X;
+        Last_Move_Point.y = _Y;
     }
     return;
 }
@@ -452,7 +493,7 @@ void getDirection(int status, int& dx, int& dy) {
 //    return twoHeads;
 //}
 void printCandidates(const vector<candidate>& candidates) {
-    
+    if (!DebugMode) return;
     for (int i = 0; i < candidates.size(); i++) {
         gotoXY(93, 1 + i);
         
@@ -472,8 +513,8 @@ void printCandidates(const vector<candidate>& candidates) {
 //        cout << "O";
 //        Sacred.isXTurn = true;
 //        Sacred.board[first_chess.x][first_chess.y] = 2;
-//        Parent.x = Mother_Point_x + first_chess.y * 4;
-//        Parent.y = Mother_Point_y + first_chess.x * 2;
+//        Last_Move_Point.x = Mother_Point_x + first_chess.y * 4;
+//        Last_Move_Point.y = Mother_Point_y + first_chess.x * 2;
 //        Sacred.chess_on_board++;
 //    }
 //    else
@@ -557,8 +598,8 @@ void printCandidates(const vector<candidate>& candidates) {
 //                        cout << "O";
 //                        Sacred.isXTurn = true;
 //                        Sacred.board[twoHeads[0].x][twoHeads[0].y] = 2;
-//                        Parent.x = Mother_Point_x + twoHeads[0].y * 4;
-//                        Parent.y = Mother_Point_y + twoHeads[0].x * 2;
+//                        Last_Move_Point.x = Mother_Point_x + twoHeads[0].y * 4;
+//                        Last_Move_Point.y = Mother_Point_y + twoHeads[0].x * 2;
 //                        flag = false;
 //                        gotoXY(1, 1);
 //                        printBoard(Sacred.board);
@@ -606,8 +647,8 @@ void printCandidates(const vector<candidate>& candidates) {
 //                     cout << "O";
 //                     Sacred.isXTurn = true;
 //                     Sacred.board[twoHeads[0].x][twoHeads[0].y] = 2;
-//                     Parent.x = Mother_Point_x + twoHeads[0].y * 4;
-//                     Parent.y = Mother_Point_y + twoHeads[0].x * 2;
+//                     Last_Move_Point.x = Mother_Point_x + twoHeads[0].y * 4;
+//                     Last_Move_Point.y = Mother_Point_y + twoHeads[0].x * 2;
 //                     flag = false;
 //                     gotoXY(1, 1);
 //                     printBoard(Sacred.board);

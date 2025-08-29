@@ -85,7 +85,7 @@ void readBoard(string fileName)
     fin >> Sacred.Name1 >> Sacred.Name2;
 
     // Đọc vị trí con trỏ
-    fin >> Sacred.CurPoint.x >> Sacred.CurPoint.y;
+    fin >> _X >> _Y;
 
     bool emptyBoard = true; // kiểm tra có phải bàn trống không
     for (int i = 0; i < BOARD_SIZE; i++) {

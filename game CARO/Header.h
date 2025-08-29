@@ -21,7 +21,9 @@ struct GameRound
     int P1, P2;
     int curRound;
     string Name1, Name2;
-    Point CurPoint;
+    Point cPointer;
+    Point lastMove;
+
     int FLAG;
     bool isNewBoard;
     int chess_on_board;
@@ -34,12 +36,14 @@ struct GameRound
         curRound = 1;
         Name1 = "P1";
         Name2 = "P2";
-        CurPoint.x = Mother_Point_x;
-        CurPoint.y = Mother_Point_y;
+        cPointer.x = Mother_Point_x;
+        cPointer.y = Mother_Point_y;
         FLAG = 0;
         isNewBoard = true;
         chess_on_board = 0;
         isPVP = true;
+        lastMove.x = -1;
+        lastMove.y = -1;
     }
 };
 extern GameRound Sacred;
@@ -96,3 +100,4 @@ void Character_2(int x, int y);
 
 void display_Enter_Name_Room();
 
+void pauseMenu();
