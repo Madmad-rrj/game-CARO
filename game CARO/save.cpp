@@ -9,21 +9,52 @@ extern int _Y;
 extern int BEGIN;
 vector<string>savedGames;
 
+//void saveGame()
+//{
+//    enter_fileName_box();
+//    string name;
+//    do
+//    {
+//        gotoXY(51, 16);
+//        cin >> name;
+//        if (name.size() > 8) {
+//            // gotoXY()
+//            gotoXY(51, 16); cout << "                                          ";
+//        }
+//    } while (name.size() > 8);
+//    saveToBoard(name);
+//}
 void saveGame()
 {
     enter_fileName_box();
-    string name;
-    do
+    int x = 51, y = 16;
+    string name = "";
+    while (true)
     {
-        gotoXY(51, 16);
-        cin >> name;
-        if (name.size() > 8) {
-            // gotoXY()
-            gotoXY(51, 16); cout << "                                          ";
+        gotoXY(x, y);
+        int key = _getch();
+
+        if (key == 27) return;                 // ESC -> thoát
+        else if (key == 13) {                  // Enter
+            if (!name.empty()) break;          // chỉ thoát khi có tên
         }
-    } while (name.size() > 8);
+        else if (key == 8) {                   // Backspace
+            if (!name.empty()) {
+                name.pop_back();
+                x--;
+                gotoXY(x, y);
+                cout << " ";                   // xóa ký tự trên màn hình
+            }
+        }
+        else if (name.size() < 8 && isprint(key)) { // ký tự hợp lệ & chưa quá 8 ký tự
+            name.push_back((char)key);
+            cout << (char)key;
+            x++;
+        }
+    }
     saveToBoard(name);
 }
+
 void saveToBoard( string fileName)
 {
     string tail = Sacred.isPVP ? "_1" : "_2";

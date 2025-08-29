@@ -1033,16 +1033,16 @@ void displayPauseMENU(int choice)
 {
     int x = 41, y = 12;
     gotoXY(x, y);         cout << u8R"(╔═══════════════════════════════════╗)";
-    for (int i = 1; i < 5; i++)
+    for (int i = 1; i < 7; i++)
     {
         gotoXY(x, y + i); cout << u8R"(║                                   ║)";
     }
-    gotoXY(x, y + 5);     cout << u8R"(╚═══════════════════════════════════╝)";
-    string menu[4] = {
-        "continue", "Instruction", "Setting", "Load Game"
+    gotoXY(x, y + 7);     cout << u8R"(╚═══════════════════════════════════╝)";
+    string menu[6] = {
+        "continue", "Instruction", "Setting", "Load Game", "Save Game", "Escape"
     };
     
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 6; i++)
     {
         gotoXY(x + 15, y + 1 + i); cout << menu[i];
         /*if (choice == i) {
@@ -1065,9 +1065,9 @@ void pauseMenu()
         displayPauseMENU(choice);
         key = _getch();
         if (key == 'w' || key == 'W')
-            choice = (choice - 1 + 4) % 4;
+            choice = (choice - 1 + 6) % 6;
         else if (key == 's' || key == 'S')
-            choice = (choice + 1) % 4;
+            choice = (choice + 1) % 6;
         else if (key == 13)
         {
             //system("cls");
@@ -1077,6 +1077,12 @@ void pauseMenu()
             case 1: VFXmode = !VFXmode; break;
             case 2: SETTING(); break;
             case 3: cout << "tieng viet"; break;
+            case 4:  
+                saveGame();
+                clearscreen();
+                recoverBoard(); 
+                break;
+            case 5: Menu(); break;
             }
             // system("pause");
         }
